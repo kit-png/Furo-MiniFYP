@@ -1,40 +1,115 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
-import { SectionCards } from "@/components/section-cards"
-import { SiteHeader } from "@/components/site-header"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+'use client';
 
-import data from "./data.json"
+import dynamic from 'next/dynamic';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function Page() {
+const Header = dynamic(() => import('@/components/header').then(mod => ({ default: mod.Header })), {
+  ssr: false
+});
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { mockAPIs } from '@/lib/mock-data';
+import { DollarSign, Activity, Eye, Settings } from 'lucide-react';
+import Link from 'next/link';
+
+export default function DashboardPage() {
+  // Mock user's APIs (in real app, this would be filtered by connected wallet)
+  const userAPIs = mockAPIs.slice(0, 2);
+  
+  const totalEarnings = userAPIs.reduce((sum, api) => sum + (api.totalCalls * api.price), 0);
+  const totalCalls = userAPIs.reduce((sum, api) => sum + api.totalCalls, 0);
+
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
-              <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
-              </div>
-              <DataTable data={data} />
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Provider Dashboard</h1>
+          <p className="text-gray-600">Manage your APIs and track earnings</p>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
-  )
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalEarnings.toFixed(4)} ETH</div>
+              <p className="text-xs text-muted-foreground">+12% from last month</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total API Calls</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalCalls.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">+8% from last month</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active APIs</CardTitle>
+              <Eye className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{userAPIs.length}</div>
+              <p className="text-xs text-muted-foreground">All systems operational</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Your APIs</CardTitle>
+              <Link href="/list-api">
+                <Button>List New API</Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {userAPIs.map((api) => (
+                <div key={api.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="font-medium">{api.name}</h3>
+                      <Badge variant="secondary">{api.category}</Badge>
+                      <Badge variant={api.status === 'active' ? 'default' : 'secondary'}>
+                        {api.status}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{api.description}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span>{api.totalCalls.toLocaleString()} calls</span>
+                      <span>{api.price} {api.currency} per call</span>
+                      <span>Earned: {(api.totalCalls * api.price).toFixed(4)} {api.currency}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Link href={`/api/${api.id}`}>
+                      <Button variant="outline" size="sm">
+                        <Eye className="h-4 w-4 mr-2" />
+                        View
+                      </Button>
+                    </Link>
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
 }

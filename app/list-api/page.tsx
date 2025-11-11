@@ -1,0 +1,132 @@
+'use client';
+
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { Button } from '@/components/ui/button';
+
+const Header = dynamic(() => import('@/components/header').then(mod => ({ default: mod.Header })), {
+  ssr: false
+});
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { categories } from '@/lib/mock-data';
+
+export default function ListAPIPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    category: '',
+    endpoint: '',
+    price: '',
+    currency: 'ETH'
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Submitting API:', formData);
+    // This will connect to backend in Phase 2
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-8 max-w-2xl">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">List Your API</CardTitle>
+            <p className="text-gray-600">
+              Submit your API to the marketplace and start earning with x402 micropayments
+            </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label htmlFor="name">API Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  placeholder="e.g., Weather Data API"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="Brief description of your API"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select onValueChange={(value) => setFormData({...formData, category: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.filter(c => c !== 'All').map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="endpoint">API Endpoint</Label>
+                <Input
+                  id="endpoint"
+                  value={formData.endpoint}
+                  onChange={(e) => setFormData({...formData, endpoint: e.target.value})}
+                  placeholder="https://api.example.com/v1/data"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="price">Price per Call</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.0001"
+                    value={formData.price}
+                    onChange={(e) => setFormData({...formData, price: e.target.value})}
+                    placeholder="0.001"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="currency">Currency</Label>
+                  <Select onValueChange={(value) => setFormData({...formData, currency: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="ETH" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ETH">ETH</SelectItem>
+                      <SelectItem value="USDC">USDC</SelectItem>
+                      <SelectItem value="USDT">USDT</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full" size="lg">
+                Submit API for Review
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
+}
