@@ -1,0 +1,54 @@
+erDiagram
+    %% Entities and Relationships Only
+
+    %% 1. Client
+    CLIENT ||--o{ PAYMENT_PAYLOAD : "Sends"
+    CLIENT ||--o{ PAYMENT_REQUIRED_RESPONSE : "Receives"
+    CLIENT ||--o{ API_ACCESS : "Accesses"
+    CLIENT ||--o{ WALLET : "Linked to"
+
+    %% 2. Resource Server
+    RESOURCE_SERVER ||--o{ RESOURCE : "Provides"
+    RESOURCE_SERVER ||--o{ PAYMENT_REQUIREMENTS : "Defines"
+    RESOURCE_SERVER ||--o{ PAYMENT_REQUIRED_RESPONSE : "Sends"
+    RESOURCE_SERVER ||--|| FACILITATOR_SERVER : "Verifies / Settles"
+
+    %% 3. Facilitator Server
+    FACILITATOR_SERVER ||--o{ FACILITATOR_VERIFICATION : "Processes"
+    FACILITATOR_SERVER ||--o{ FACILITATOR_SETTLEMENT : "Executes"
+    FACILITATOR_SERVER ||--|| BLOCKCHAIN_NETWORK : "Interacts with"
+
+    %% 4. Resource
+    RESOURCE ||--o{ PAYMENT_REQUIREMENTS : "Referenced by"
+
+    %% 5. Payment Requirements
+    PAYMENT_REQUIREMENTS ||--|| RESOURCE : "References"
+
+    %% 6. Payment Payload
+    PAYMENT_PAYLOAD ||--|| PAYMENT_REQUIREMENTS : "Uses"
+    PAYMENT_PAYLOAD ||--|| FACILITATOR_SERVER : "Verified / Settled by"
+
+    %% 7. Payment Required Response
+    PAYMENT_REQUIRED_RESPONSE ||--o{ PAYMENT_REQUIREMENTS : "Contains"
+
+    %% 8. Facilitator Verification
+    FACILITATOR_VERIFICATION ||--|| RESOURCE_SERVER : "Sent by"
+
+    %% 9. Facilitator Settlement
+    FACILITATOR_SETTLEMENT ||--|| RESOURCE_SERVER : "Result returned to"
+    FACILITATOR_SETTLEMENT ||--|| BLOCKCHAIN_NETWORK : "Interacts with"
+
+    %% 10. Blockchain Network
+    BLOCKCHAIN_NETWORK ||--o{ PAYMENT_REQUIREMENTS : "Referenced by"
+    BLOCKCHAIN_NETWORK ||--o{ PAYMENT_PAYLOAD : "Referenced by"
+
+    %% 11. API
+    API ||--o{ FAVORITES : "Referenced by"
+    API ||--o{ CLIENT : "Accessed by"
+
+    %% 12. Favorites
+    FAVORITES ||--|| WALLET : "Belongs to"
+    FAVORITES ||--|| API : "References"
+
+    %% 13. Wallet
+    WALLET ||--o{ FAVORITES : "Owns"
